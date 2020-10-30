@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<!-- reference: http://wiki.ros.org/urdf/Tutorials -->
+<!-- reference: https://github.com/ros/urdf_tutorial -->
+<launch>
+  <!-- Define the arguments that will be passed to the nodes -->
+  <arg name="model" default="$(find pbot_dsc)/urdf/pbot.xacro"/>
+  <arg name="gui" default="true" />
+  <arg name="rvizconfig" default="$(find pbot_dsc)/rviz/urdf.rviz" />
+  <!-- Define the robot description (urdf/xacro) file as a global parameter, so the simulation knows what model has to loaded -->
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+  <!-- Start the nodes required to interact with the robot and pass the configuration file to rviz -->
+  <node if="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher_gui" type="joint_state_publisher_gui" />
+  <node unless="$(arg gui)" name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
+  <node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" required="true" />
+</launch>

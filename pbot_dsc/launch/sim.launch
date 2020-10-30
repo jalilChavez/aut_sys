@@ -1,0 +1,29 @@
+
+<launch>
+    <!-- define the argument to pass to the gazebo.launch file -->
+    <arg name="model" default="$(find pbot_dsc)/urdf/pbot.xacro"/>
+    <arg name="rvizconfig" default="$(find pbot_dsc)/rviz/urdf.rviz" />
+    <!-- load the gazebo simulation -->
+    <include file="$(find pbot_dsc)/launch/gazebo.launch">
+        <arg name="model" value="$(arg model)" />
+    </include>
+    <!-- pass rviz config file -->
+    <!--node name="rviz" pkg="rviz" type="rviz" args="-d $(arg rvizconfig)" /-->
+    <!-- read the yaml file and put its content into pbot_joint_state_controller namespace -->
+    <rosparam command="load"
+            file="$(find pbot_dsc)/config/joints.yaml"
+            ns="pbot_joint_state_controller" />
+    <rosparam command="load"
+            file="$(find pbot_dsc)/config/diff_drive.yaml"
+            ns="pbot_diff_drive_controller" />
+
+    <!-- pass the yaml variables to the controller_manager. This node will publish the joint state
+    into ROS from Gazebo -->
+    <node name="pbot_controller_spawner" pkg="controller_manager" type="spawner"
+        args="pbot_joint_state_controller
+              pbot_diff_drive_controller
+              --shutdown-timeout 3"/>
+    <!--node name="rqt_robot_steering" pkg="rqt_robot_steering" type="rqt_robot_steering">
+        <param name="default_topic" value="/pbot_diff_drive_controller/cmd_vel"/>
+    </node-->
+</launch>

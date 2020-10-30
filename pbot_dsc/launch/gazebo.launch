@@ -1,0 +1,27 @@
+<launch>
+
+  <!-- these are the default values for the arguments you can pass to this launch file
+    if the launch file is invoked from another launch file, then these arguments might not
+    be the final ones -->
+  <arg name="paused" default="false"/>
+  <arg name="use_sim_time" default="true"/>
+  <arg name="gui" default="true"/>
+  <arg name="headless" default="false"/>
+  <arg name="debug" default="false"/>
+  <arg name="model" default="$(find pbot_dsc)/urdf/pbot.xacro"/>
+
+  <!-- World definition. If needed, change the launch file to call a different world  -->
+  <include file="$(find pbot)/launch/pbot_world.launch"></include>
+  
+  <!-- Now, let's parse our xacro file before pushing it to the factory -->
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+
+  <!-- push robot_description to factory and spawn robot in gazebo -->
+  <node name="urdf_spawner" pkg="gazebo_ros" type="spawn_model"
+        args="-z 1.0 -unpause -urdf -model robot -param robot_description" respawn="false" output="screen" />
+
+  <node pkg="robot_state_publisher" type="robot_state_publisher"  name="robot_state_publisher">
+    <param name="publish_frequency" type="double" value="30.0" />
+  </node>
+
+</launch>
